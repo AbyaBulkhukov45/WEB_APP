@@ -3,19 +3,18 @@ from django.views.generic import (
 )
 from django.contrib.auth.mixins import LoginRequiredMixin
 from .forms import PostForm, CommentForm
-from django.urls import reverse_lazy,reverse
+from django.urls import reverse_lazy, reverse
 from django.core.exceptions import PermissionDenied
 from django.contrib.auth.decorators import login_required
 from django.db.models import Count
 from django.contrib.auth.models import User
-from django.contrib.auth.forms import UserChangeForm
 from .forms import EditProfileForm
-from django.core.paginator import Paginator
 from django.shortcuts import render, get_object_or_404, redirect
 from django.utils import timezone
-from .models import Post, Category , Comment
+from .models import Post, Category, Comment
 
-POSTS_LIMIT = 4
+POSTS_LIMIT = 10
+
 
 class PostListView(ListView):
     model = Post
@@ -25,9 +24,9 @@ class PostListView(ListView):
         category__is_published=True,
         pub_date__lte=timezone.now()
     )
-    ordering =  ['-pub_date']
+    ordering = ['-pub_date']
     paginate_by = POSTS_LIMIT
-    
+
     def get_queryset(self):
         queryset = super().get_queryset()
         queryset = queryset.annotate(comment_count=Count('comments'))
@@ -36,8 +35,8 @@ class PostListView(ListView):
 
 class PostDetailView(LoginRequiredMixin, DetailView):
     model = Post
-    template_name = 'blog/detail.html' 
-    
+    template_name = 'blog/detail.html'
+
     def dispatch(self, request, *args, **kwargs):
         post = get_object_or_404(Post, pk=self.kwargs['pk'])
         self.object = post
@@ -50,8 +49,8 @@ class PostDetailView(LoginRequiredMixin, DetailView):
             self.object.comments.select_related('author')
         )
         return context
-    
-  
+
+
 class CategoryPostsView(ListView):
     model = Post
     template_name = 'blog/category.html'
@@ -64,7 +63,6 @@ class CategoryPostsView(ListView):
             category__slug=category_slug,
             is_published=True).order_by('-pub_date')
 
-
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         category_slug = self.kwargs['slug']
@@ -76,10 +74,11 @@ class PostCreateView(LoginRequiredMixin, CreateView):
     model = Post
     form_class = PostForm
     template_name = 'blog/create.html'
-    
+
     def form_valid(self, form):
         form.instance.author = self.request.user
         return super().form_valid(form)
+
     def get_success_url(self):
         return reverse(
             'blog:post_detail',
@@ -90,7 +89,7 @@ class PostDeleteView(LoginRequiredMixin, DeleteView):
     model = Post
     template_name = 'blog/delete.html'
     success_url = reverse_lazy('blog:index')
-    
+
     def dispatch(self, request, *args, **kwargs):
         self.object = self.get_object()
         return super().dispatch(request, *args, **kwargs)
@@ -100,23 +99,23 @@ class PostUpdateView(LoginRequiredMixin, UpdateView):
     model = Post
     form_class = PostForm
     template_name = 'blog/create.html'
-    
+
     def dispatch(self, request, *args, **kwargs):
         self.object = get_object_or_404(
             Post, pk=kwargs['pk'],
             author=request.user)
         return super().dispatch(request, *args, **kwargs)
-    
+
     def get(self, request, *args, **kwargs):
         self.object = self.get_object()
         form = self.get_form()
         form.initial['pub_date'] = self.object.pub_date
         return self.render_to_response(
             self.get_context_data(form=form))
-    
+
     def form_valid(self, form):
         return super().form_valid(form)
-    
+
     def get_success_url(self):
         return reverse('blog:index')
 
@@ -148,7 +147,11 @@ def edit_comment(request, pk, comment_pk):
     else:
         form = CommentForm(instance=comment)
 
-    return render(request, 'blog/comment.html', {'form': form})
+    return render(request,
+                  'blog/comment.html',
+                  {'form': form,
+                   'post': post,
+                   'comment': comment})
 
 
 @login_required
@@ -157,9 +160,16 @@ def delete_comment(request, pk, comment_pk):
     comment = get_object_or_404(Comment, pk=comment_pk)
     if comment.author != request.user:
         raise PermissionDenied
-    comment.delete()
-    return redirect('blog:post_detail', pk=pk)
-  
+
+    if request.method == 'POST':
+        comment.delete()
+        return redirect('blog:post_detail', pk=pk)
+
+    return render(request,
+                  'blog/comment.html',
+                  {'comment': comment,
+                   'post': post})
+
 
 class ProfileView(LoginRequiredMixin, ListView):
     template_name = 'blog/profile.html'
@@ -173,9 +183,12 @@ class ProfileView(LoginRequiredMixin, ListView):
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        context['profile'] = get_object_or_404(User, username=self.kwargs['username'])
+        context['profile'] = get_object_or_404(
+            User,
+            username=self.kwargs['username']
+        )
         return context
-   
+
 
 @login_required
 def edit_profile_view(request):
@@ -187,4 +200,7 @@ def edit_profile_view(request):
     else:
         form = EditProfileForm(instance=request.user)
 
-    return render(request, 'blog/edit_profile.html', {'form': form})
+    return render(request,
+                  'blog/edit_profile.html',
+                  {'form': form,
+                   'user': request.user})

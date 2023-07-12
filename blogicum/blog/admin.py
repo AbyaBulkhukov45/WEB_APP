@@ -1,6 +1,6 @@
 from django.contrib import admin
 from django.contrib.admin import register
-from .models import Post, Location, Category
+from .models import Post, Location, Category, Comment
 
 admin.site.empty_value_display = 'Не задано'
 
@@ -51,3 +51,11 @@ class LocationAdmin(admin.ModelAdmin):
     list_display = (
         'name',
     )
+
+
+@register(Comment)
+class CommentAdmin(admin.ModelAdmin):
+    list_display = ('text', 'post', 'author', 'created_at', 'updated_at')
+    list_filter = ('post', 'author')
+    search_fields = ('text', 'author__username')
+    date_hierarchy = 'created_at'

@@ -1,6 +1,5 @@
 from django.db import models
 from django.contrib.auth import get_user_model
-from django.urls import reverse
 
 User = get_user_model()
 
@@ -26,8 +25,6 @@ class Location(models.Model):
 
     def __str__(self):
         return self.name
-
-
 
 
 class Category(models.Model):
@@ -62,8 +59,6 @@ class Category(models.Model):
         return self.title
 
 
-
-
 class Post(models.Model):
     title = models.CharField(
         max_length=256,
@@ -81,7 +76,7 @@ class Post(models.Model):
         User,
         on_delete=models.CASCADE,
         verbose_name='Автор публикации',
-        null = True
+        null=True
     )
     location = models.ForeignKey(
         Location,
@@ -105,7 +100,10 @@ class Post(models.Model):
         auto_now_add=True,
         verbose_name='Добавлено'
     )
-    image = models.ImageField('Фото', upload_to = 'post_images',blank=True)
+    image = models.ImageField(
+        'Фото',
+        upload_to='post_images',
+        blank=True)
 
     class Meta:
         verbose_name = 'публикация'
@@ -115,17 +113,22 @@ class Post(models.Model):
         return self.title
 
 
-
 class Comment(models.Model):
-    post = models.ForeignKey(Post, on_delete=models.CASCADE, related_name='comments')
-    author = models.ForeignKey(User, on_delete=models.CASCADE, verbose_name='Автор комментария')
+    post = models.ForeignKey(Post,
+                             on_delete=models.CASCADE,
+                             related_name='comments')
+    author = models.ForeignKey(User,
+                               on_delete=models.CASCADE,
+                               verbose_name='Автор комментария')
     text = models.TextField(verbose_name='Текст комментария')
-    created_at = models.DateTimeField(auto_now_add=True, verbose_name='Дата и время создания')
-    updated_at = models.DateTimeField(auto_now=True, verbose_name='Дата и время обновления')
+    created_at = models.DateTimeField(auto_now_add=True,
+                                      verbose_name='Дата и время создания')
+    updated_at = models.DateTimeField(auto_now=True,
+                                      verbose_name='Дата и время обновления')
 
     class Meta:
         verbose_name = 'комментарий'
         verbose_name_plural = 'Комментарии'
 
     def __str__(self):
-        return f'Комментарий от {self.author.username} к записи "{self.post.title}"'
+        return self.text
