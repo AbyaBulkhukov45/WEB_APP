@@ -4,4 +4,7 @@
   <h1>Страница не найдена</h1>
   <p>Страницы с адресом {{ request.build_absolute_uri }} не существует!</p>
   <a href="{% url 'blog:index' %}">Вернуться на главную</a>
+  <div>
+    <img class=" mb-2 mx-auto d-block" src="{% static "img/404-image.png" %}" width="400" alt="">
+  </div>
 {% endblock %}

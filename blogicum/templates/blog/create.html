@@ -33,12 +33,18 @@
                   <img class="border-3 rounded img-fluid img-thumbnail mb-2" src="{{ form.instance.image.url }}">
                 </a>
               {% endif %}
-              <p>{{ form.instance.pub_date|date:"d E Y" }} | {% if form.instance.location and form.location.is_published %}{{ form.instance.location.name }}{% else %}Планета Земля{% endif %}<br>
+              <p>{{ form.instance.pub_date|date:"d E Y" }} |
+                {% if form.instance.location and form.instance.location.is_published %}
+                  {{ form.instance.location.name }}{% else %}Планета Земля{% endif %}<br>
               <h3>{{ form.instance.title }}</h3>
               <p>{{ form.instance.text|linebreaksbr }}</p>
             </article>
           {% endif %}
-          {% bootstrap_button button_type="submit" content="Отправить" %}
+          {% if '/delete/' in request.path %}
+            {% bootstrap_button button_type="submit" content="Удалить" %}
+          {% else %}
+            {% bootstrap_button button_type="submit" content="Отправить" %}
+          {% endif %}
         </form>
       </div>
     </div>

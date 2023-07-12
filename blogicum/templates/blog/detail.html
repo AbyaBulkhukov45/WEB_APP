@@ -1,6 +1,7 @@
 {% extends "base.html" %}
 {% block title %}
-  {{ post.title }} | {% if post.location and post.location.is_published %}{{ post.location.name }}{% else %}Планета Земля{% endif %} |
+  {{ post.title }} |
+  {% if post.location and post.location.is_published %}{{ post.location.name }}{% else %}Планета Земля{% endif %} |
   {{ post.pub_date|date:"d E Y" }}
 {% endblock %}
 {% block content %}
@@ -20,9 +21,11 @@
             {% elif not post.category.is_published %}
               <p class="text-danger">Выбранная категория снята с публикации админом</p>
             {% endif %}
-            {{ post.pub_date|date:"d E Y, H:i" }} | {% if post.location and post.location.is_published %}{{ post.location.name }}{% else %}Планета Земля{% endif %}<br>
-            От автора <a class="text-muted" href="{% url 'blog:profile' post.author %}">@{{ post.author.username }}</a> в
-            категории {% include "includes/category_link.html" %}
+            {{ post.pub_date|date:"d E Y, H:i" }} |
+            {% if post.location and post.location.is_published %}{{ post.location.name }}{% else %}Планета
+              Земля{% endif %}<br>
+            От автора <a class="text-muted" href="{% url 'blog:profile' post.author %}">@{{ post.author.username }}</a>
+            в категории {% include "includes/category_link.html" %}
           </small>
         </h6>
         <p class="card-text">{{ post.text|linebreaksbr }}</p>

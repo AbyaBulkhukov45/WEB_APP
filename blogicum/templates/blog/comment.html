@@ -3,8 +3,10 @@
 {% block title %}
   {% if '/edit_comment/' in request.path %}
     Редактирование комментария
-  {% else %}
+  {% elif '/delete_comment/' in request.path %}
     Удаление комментария
+  {% else %}
+    Создать комментарий
   {% endif %}
 {% endblock %}
 {% block content %}
@@ -14,23 +16,25 @@
         <div class="card-header">
           {% if '/edit_comment/' in request.path %}
             Редактирование комментария
-          {% else %}
+          {% elif '/delete_comment/' in request.path %}
             Удаление комментария
+          {% else %}
+            Создать комментарий
           {% endif %}
         </div>
         <div class="card-body">
           <form method="post"
             {% if '/edit_comment/' in request.path %}
-            action="{% url 'blog:edit_comment' pk=post.pk comment_pk=comment.pk %}"
-
+                action="{% url 'blog:edit_comment' comment.post_id comment.id %}"
             {% endif %}>
             {% csrf_token %}
             {% if not '/delete_comment/' in request.path %}
               {% bootstrap_form form %}
+              {% bootstrap_button button_type="submit" content="Отправить" %}
             {% else %}
               <p>{{ comment.text }}</p>
+              {% bootstrap_button button_type="submit" content="Удалить" %}
             {% endif %}
-            {% bootstrap_button button_type="submit" content="Отправить" %}
           </form>
         </div>
       </div>
