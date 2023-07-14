@@ -7,13 +7,11 @@ admin.site.empty_value_display = "Не задано"
 
 
 class BlogAdmin(admin.ModelAdmin):
-    """Общий интерфейс админ-панели блог."""
 
     list_editable = ("is_published",)
 
 
 class CommentAdmin(admin.TabularInline):
-    """Интерфейс для комментариев."""
 
     model = Comment
     readonly_fields = (
@@ -26,7 +24,6 @@ class CommentAdmin(admin.TabularInline):
 
 @admin.register(Post)
 class PostAdmin(BlogAdmin):
-    """Интерфейс для постов."""
 
     inlines = [CommentAdmin]
 
@@ -74,7 +71,6 @@ class PostAdmin(BlogAdmin):
 
 @admin.register(Category)
 class CategoryAdmin(BlogAdmin):
-    """Интерфейс для категорий."""
 
     list_display = (
         "title",
@@ -86,7 +82,6 @@ class CategoryAdmin(BlogAdmin):
 
 @admin.register(Location)
 class LocationAdmin(BlogAdmin):
-    """Интерфейс для местоположения."""
 
     list_display = (
         "name",
